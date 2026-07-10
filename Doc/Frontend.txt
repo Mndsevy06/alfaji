@@ -1,0 +1,68 @@
+# SPÉCIFICATIONS FRONTEND : LOGICIEL DE COMPTABILITÉ (FULL)
+
+## 1. RÈGLES DE DESIGN ET D'EXPÉRIENCE UTILISATEUR (UX/UI)
+Le développement du frontend doit strictement respecter les standards suivants pour garantir une expérience de haute qualité :
+* **Design Élégant et Premium :** L'interface doit refléter le professionnalisme et la rigueur du cabinet. Utilisation de palettes de couleurs harmonieuses, de typographies modernes (ex. Inter, Roboto), d'espacements aérés (whitespace) et de micro-animations subtiles pour rendre l'expérience fluide, rassurante et agréable.
+* **Responsive Design :** L'interface doit s'adapter parfaitement à toutes les tailles d'écrans (ordinateurs de bureau, ordinateurs portables, et en consultation pour tablettes et smartphones).
+* **Optimisation des Performances (Vitesse) :** Le chargement des pages et le passage d'une interface à une autre doivent être instantanés (Single Page Application). L'interface doit être capable de gérer de très grands volumes de données (ex. un Grand Livre de plusieurs milliers de lignes) sans aucun ralentissement, via le lazy loading et la virtualisation des listes.
+* **Thèmes Clair et Sombre (Light & Dark Mode) :** L'application doit proposer nativement les deux modes, avec un basculement rapide. Les contrastes doivent être spécifiquement optimisés dans les deux modes pour réduire la fatigue oculaire lors des saisies comptables prolongées.
+* **Iconographie et Images :** Embellissement avec des images et d'icônes professionnelles, bien disposées, sans surcharger l'écran. Elles doivent respecter les normes d'accessibilité et servir uniquement à guider l'utilisateur intuitivement.
+
+## 2. DESCRIPTION FONCTIONNELLE DES INTERFACES
+
+### 2.1. Interface de Connexion / Authentification
+* **Formulaire d'identification :** Saisie de l'identifiant (email) et du mot de passe sécurisé.
+* **Bouton d'action :** Soumission des informations de connexion.
+* **Fonctionnalité de récupération :** Lien déclenchant la procédure de réinitialisation du mot de passe.
+* **Sélecteur de thème :** Interrupteur (toggle) permettant de choisir le mode clair ou sombre dès l'écran de connexion.
+
+### 2.2. Tableau de Bord Général (Dashboard Multi-Dossiers)
+* **Sélecteur Contextuel de Dossier :** Menu déroulant omniprésent en haut de l'écran permettant de choisir ou de changer instantanément l'entreprise cliente active.
+* **Indicateurs Clés (KPIs) :** Cartes dynamiques affichant des données consolidées du dossier actif (ex. Chiffre d'affaires de l'exercice, Solde global de trésorerie).
+* **Historique des Activités :** Flux chronologique (piste d'audit visuelle) listant les dernières actions effectuées par l'équipe sur ce dossier.
+* **Raccourcis d'Action :** Boutons d'accès rapide pour lancer directement une saisie d'opération ou la génération d'une balance.
+
+### 2.3. Interface de Gestion des Dossiers Clients
+* **Annuaire des Entreprises :** Tableau listant toutes les entreprises gérées, équipé d'une barre de recherche en temps réel et de filtres de tri.
+* **Fiche Client Détaillée :** Formulaire de création/édition centralisant les informations légales et fiscales de l'entreprise.
+* **Gestion des Exercices Fiscaux :** Module permettant d'ouvrir un nouvel exercice comptable et d'en définir précisément les dates de début et de fin.
+* **Gestion des Habilitations :** Interface d'attribution permettant d'affecter des collaborateurs spécifiques à ce dossier avec des droits précis.
+
+### 2.4. Interface du Plan Comptable (SYSCOHADA)
+* **Explorateur de Comptes :** Affichage hiérarchique interactif du plan comptable général, permettant de déplier/replier les classes et sous-classes.
+* **Moteur de Recherche Intelligente :** Permet de cibler un compte par son numéro ou un mot de son libellé avec des suggestions instantanées.
+* **Éditeur de Comptes :** Formulaire contextuel pour ajouter, modifier ou désactiver un compte auxiliaire propre aux spécificités du client.
+* **Outils de Migration :** Fonctionnalités pour importer massivement un plan comptable (via fichier structuré) ou l'exporter.
+
+### 2.5. Interface de Saisie Comptable (Journaux et Brouillard)
+* **Sélecteur de Journal :** Menu permettant de basculer rapidement entre les types de journaux (Achats, Ventes, Trésorerie, Opérations Diverses).
+* **Grille de Saisie Haute Vitesse :** Tableau optimisé pour une frappe continue au clavier. Chaque ligne de saisie comprend les colonnes obligatoires (Date, N° Compte, Libellé, Débit, Crédit).
+* **Contrôleur d'Équilibre Automatique :** Indicateur de contrôle en temps réel qui calcule la somme des débits et des crédits de la session de saisie et met en évidence tout écart.
+* **Bouton d'Enregistrement (Brouillard) :** Sauvegarde des écritures en mode provisoire (elles restent modifiables et supprimables).
+* **Bouton de Validation Définitive :** Fige et verrouille les écritures. Ce composant est strictement désactivé par le système si l'équilibre Débit/Crédit de l'écriture n'est pas parfait.
+
+### 2.6. Interface de Révision et Contre-passation
+* **Explorateur d'Écritures :** Outil de recherche multicritères (par période, montant, type de journal, compte impliqué, état validé/brouillard).
+* **Action de Contre-passation :** Fonctionnalité accessible uniquement sur les écritures verrouillées. Elle génère automatiquement une nouvelle écriture inverse pour annuler l'impact d'une erreur, tout en conservant la trace de l'erreur initiale pour la piste d'audit.
+
+### 2.7. Interface des Restitutions Financières
+* **Générateur Multidimensionnel :** Panneau de configuration pour générer la Balance à 6 colonnes, le Grand Livre ou les Journaux de centralisation, en sélectionnant la période et le niveau de détail souhaité.
+* **Visualiseur Dynamique :** Affichage de l'état financier directement à l'écran, avec des capacités de forage (Drill-down : cliquer sur le solde d'un compte de la Balance pour ouvrir son Grand Livre détaillé).
+* **Outils d'Exportation :** Commandes pour le téléchargement instantané du document affiché au format PDF sécurisé ou au format Excel.
+
+### 2.8. Interface de Rapprochement Bancaire
+* **Module d'Importation :** Zone interactive de glisser-déposer (Drag & Drop) pour charger les extraits de compte fournis par la banque (CSV/Excel).
+* **Écran de Lettrage (Vue Divisée) :** Interface présentant côte à côte les écritures de trésorerie comptabilisées et les lignes du relevé bancaire importé.
+* **Mécanisme de Rapprochement :** Fonction de pointage permettant de lier manuellement ou automatiquement (via suggestions algorithmiques basées sur les montants/dates) les lignes de relevé aux écritures comptables.
+* **Générateur d'OD Automatiques :** Outil permettant de créer instantanément une opération diverse (ex. frais bancaires, agios) à partir d'une ligne de relevé non trouvée en comptabilité.
+
+### 2.9. Interface de Gestion des Immobilisations
+* **Registre des Actifs :** Tableau récapitulatif des immobilisations corporelles et incorporelles, avec leurs valeurs et statuts d'amortissement.
+* **Fiche d'Immobilisation :** Formulaire de création permettant de renseigner la valeur d'acquisition, la durée d'amortissement et le type de méthode (linéaire, etc.).
+* **Simulateur de Plan d'Amortissement :** Grille prévisionnelle calculée par le système affichant les dotations à passer sur toute la durée de vie de l'actif.
+* **Générateur de Dotations :** Bouton d'action permettant d'injecter automatiquement toutes les écritures de dotations aux amortissements dans le journal des Opérations Diverses à la clôture.
+
+### 2.10. Interface des États Financiers OHADA
+* **Tableau de Suivi de Clôture :** Panneau de contrôle vérifiant que toutes les étapes préalables à la génération des états sont respectées (ex. équilibres, amortissements générés).
+* **Moteur de Génération :** Interface générant instantanément la liasse complète (Bilan, Compte de Résultat, TAFIRE) à partir de la balance générale définitive.
+* **Éditeur de Revue :** Module permettant d'afficher et de réviser les rubriques des états financiers générés avant leur validation, impression ou télétransmission.

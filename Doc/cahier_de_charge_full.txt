@@ -1,0 +1,158 @@
+# Cahier des Charges : Système ERP Comptable, Logistique et Fiscal Multi-Sites
+**Version :** 3.2 (Conformité OHADA Renforcée + Journalisation Complète des Actions)
+**Secteur :** Négoce International de Ciment (RDC - Zambie)
+**Type de document :** Spécifications Fonctionnelles et Techniques
+
+---
+
+## 1. Contexte, Enjeux et Objectifs du Projet
+
+### 1.1. Le Constat de Départ
+L'entreprise opère actuellement ses flux commerciaux, logistiques et financiers de manière manuelle ou semi-automatisée via des feuilles de calcul Excel. Cette organisation engendre une lourdeur administrative significative, accroît les risques d'erreurs de saisie ou de perte d'informations, et limite la visibilité en temps réel sur les flux de trésorerie et le statut des marchandises transitant entre la Zambie (achats auprès de Dangote) et la République Démocratique du Congo (Lubumbashi et Mine de Sabri).
+
+### 1.2. Les Objectifs Stratégiques
+* **Centralisation :** Unifier l'ensemble des données financières, RH, logistiques et fiscales sur une plateforme unique accessible en mode SaaS.
+* **Automatisation & Performance :** Réduire la saisie manuelle grâce à l'Intelligence Artificielle (OCR pour factures, intégration des e-mails) et assurer un traitement ultra-rapide du moteur comptable.
+* **Contrôle Interne Intégral :** Bloquer les opportunités de fraude grâce à la corrélation logistique/comptable et l'obligation de preuve numérisée en arrière-plan.
+* **Résilience Réseau et Terrain :** Permettre aux équipes en zones reculées ou frontalières de travailler en continu sans dépendre d'une connexion internet stable.
+* **Conformité Légale Stricte :** Intégrer les obligations fiscales de la RDC (TVA homologuée DGI, ARSP, IPR) et l'intégralité du référentiel comptable SYSCOHADA révisé.
+
+---
+
+## 2. Architecture Géo-Logistique et Gestion Multi-Sites
+L'application doit refléter l'organisation géographique et opérationnelle de l'entreprise :
+* **Équipe Zambie :** Réception des fonds de la caisse centrale, achat de ciment auprès de Dangote, paiement et contractualisation avec les transporteurs logistiques. *(Documents : Factures d'achat Dangote, reçus de caisse USD, contrats de transport).*
+* **Frontières (Douane Zambie & Congo) :** Suivi du transit des camions, formalités de dédouanement à l'export (Zambie) et à l'import (RDC). *(Documents : Documents douaniers, attestations de passage, quittances de taxes).*
+* **Bureau de Lubumbashi (Siège) :** Supervision financière, facturation client, contrôle de gestion, audit interne, consolidation comptable, centralisation de la paie et déclarations fiscales. *(Documents : Factures de vente, états financiers, liasse fiscale, reporting, paie).*
+* **Mine de Sabri (Point de Livraison) :** Réception physique du ciment, déchargement des camions transporteurs, gestion de la caisse de site locale. *(Documents : Bons de livraison, procès-verbaux de réception, justificatifs locaux).*
+
+---
+
+## 3. Spécifications Fonctionnelles Détaillées (Modules Applicatifs)
+
+### 3.1. Module 1 : IA, OCR et Gestion Documentaire Intégrée
+* **Stratégie de Déploiement :** En phase de lancement (V1), l'extraction des données se fera via une saisie manuelle minimaliste. Dans une version ultérieure (V2+), le système intègrera la technologie d'Intelligence Artificielle **Gemini**.
+* **Extraction par IA (Gemini) :** L'IA Gemini sera utilisée pour lire et analyser instantanément les photos de reçus ou les factures numérisées (Dangote, transporteurs). Elle extraira les montants, dates et noms des tiers pour préremplir l'interface de saisie. L'utilisateur n'aura plus qu'à vérifier et valider.
+* **Connexion Messagerie (Évolution future) :** Liaison native aux boîtes de messagerie. L'IA Gemini analysera les e-mails, détectera les factures en pièce jointe, et préparera les écritures correspondantes.
+
+---
+
+### 3.2. Module 2 : Ventes et Facturation
+* **Gestion des Commandes Clients :** Enregistrement des bons de commande clients.
+* **Facturation Automatisée :** Génération des factures de vente conformes aux obligations légales RDC (mention TVA, numéro fiscal, etc.) basées sur les bons de livraison validés.
+* **Suivi des Encaissements :** Lettrage des paiements clients et gestion des relances pour réduire les délais de paiement (DSO).
+
+---
+
+### 3.3. Module 3 : Comptabilité Générale (SYSCOHADA) — Conformité Renforcée
+
+#### 3.3.1. Plan Comptable SYSCOHADA
+* **Plan Comptable Natif :** Intégration native et complète du plan comptable général SYSCOHADA révisé (toutes les 8 classes).
+* **Personnalisation par Dossier :** Possibilité pour le comptable d'ajouter des subdivisions de comptes propres aux spécificités du client.
+
+#### 3.3.2. Gestion des Tiers et Comptes Auxiliaires (Exigence OHADA)
+* **Référentiel Tiers Centralisé :** Base de données unique regroupant tous les partenaires commerciaux : Fournisseurs (classe 40x), Clients (classe 41x), Personnel (classe 42x), État et organismes (classe 44x/43x), Associés (classe 46x).
+* **Comptes Auxiliaires :** À chaque tiers est associé un compte auxiliaire unique (ex: `401-DANGOTE`, `411-SABRI`). Toute écriture sur un compte collectif doit obligatoirement être imputée à un compte auxiliaire.
+* **Lettrage et Apurement :** Mécanisme de lettrage manuel et automatique permettant d'associer une facture à son règlement dans le compte du tiers, pour ne laisser apparaître que les soldes réellement ouverts (impayés).
+* **Balances Âgées :** Génération automatique des balances âgées par tiers (0-30j, 31-60j, 61-90j, +90j) pour le pilotage des créances et dettes.
+
+#### 3.3.3. Journaux Auxiliaires et Numérotation Séquentielle (Exigence OHADA)
+* **Types de Journaux :** Caisses (par site : Zambie, Lubumbashi, Mine de Sabri), Banques, Achats, Ventes, Opérations Diverses (OD).
+* **Numérotation Séquentielle Obligatoire :** Chaque pièce comptable enregistrée dans un journal doit recevoir automatiquement un numéro unique, séquentiel et sans trou par journal et par exercice (ex: `ACH-2025-00001`, `VTE-2025-00001`). Cette numérotation ne peut pas être modifiée ni réutilisée.
+* **Contrôle de l'Équilibre :** Interdiction absolue de valider une écriture dont la somme des débits ne soit pas rigoureusement égale à la somme des crédits.
+
+#### 3.3.4. Principe du Brouillard et Verrouillage
+* **Brouillard :** Les écritures saisies sont d'abord en état "Brouillard" (modifiables et supprimables, n'impactant pas les états définitifs).
+* **Validation Définitive :** La validation fige l'écriture, lui attribue son numéro séquentiel définitif et la rend immuable. Toute correction exige une écriture de contre-passation.
+* **Clôture d'Exercice :** Procédure formelle de clôture annuelle qui : (1) gèle intégralement toutes les écritures de l'exercice N, (2) génère automatiquement les écritures de report à nouveau (comptes de bilan classe 1 à 5) vers l'exercice N+1, et (3) ouvre le nouvel exercice.
+
+#### 3.3.5. Editions Comptables Obligatoires
+* **Grand Livre :** Génération du Grand Livre général et par compte, sur toute période sélectionnée.
+* **Balance des Comptes :** Balance générale à 6 colonnes (Soldes d'ouverture, Mouvements de la période, Soldes de clôture — Débit et Crédit pour chaque colonne).
+* **Journaux de Centralisation :** Édition des journaux de période par type (récapitulatif mensuel ou annuel).
+
+#### 3.3.6. États Financiers OHADA (Liasse Complète)
+* **Bilan :** Génération automatique du Bilan actif/passif conforme au modèle SYSCOHADA, alimenté directement depuis la balance des comptes.
+* **Compte de Résultat :** Génération automatique du compte de résultat (Soldes Intermédiaires de Gestion) conforme SYSCOHADA.
+* **TAFIRE :** Génération du Tableau Financier des Ressources et Emplois (TAFIRE), obligatoire dans la liasse OHADA.
+* **Notes Annexes :** Module de saisie structurée des notes annexes aux états financiers.
+
+#### 3.3.7. Journalisation et Saisie Minimaliste (Terrain & Bureau)
+* **Version Initiale (Saisie Manuelle Réduite) :** Au début (V1), pour la journalisation des opérations, l'utilisateur remplit manuellement le strict minimum. Par exemple, pour une sortie de caisse, l'agent renseigne uniquement le *Montant*, choisit la *Nature de l'opération* (menu déroulant) et joint la *Photo/Pièce*.
+* **Évolution future avec Gemini :** Dans une version ultérieure, l'agent se contentera de prendre la photo. L'IA **Gemini** se chargera de lire le reçu et de préremplir les champs (montant, nature).
+* **Complétion Automatique (Comptable) :** Dès la V1, la puissante application se charge de déduire et de remplir automatiquement en arrière-plan tous les champs comptables complexes (N° de Compte Général, Compte Auxiliaire, Sens Débit/Crédit, Journal concerné, et Taux de change).
+
+#### 3.3.8. Autres Exigences Comptables
+* **Rapprochement Bancaire :** Importation des relevés bancaires (CSV/MT940), lettrage automatisé et génération de l'état de rapprochement bancaire mensuel.
+* **Performance du Moteur :** Génération d'une balance de +5 000 lignes en moins de 3 secondes.
+* **Multi-Devises & Risque de Change :** Tenue de compte en USD, taux de change temps réel, calcul de l'impact sur le prix de revient.
+* **Smart Matching :** Algorithme reliant flux bancaire sortant, reçu de caisse et bon de livraison.
+* **Pièce Justificative Obligatoire :** Blocage de toute validation d'écriture sans pièce numérisée attachée.
+* **Détecteur d'Anomalies :** IA alertant sur les variations anormales de charges par rapport à l'historique.
+
+---
+
+### 3.4. Module 4 : Gestion des Stocks et Immobilisations
+* **Stock en Transit :** Suivi quantitatif et valorisé du ciment entre Dangote et la Mine, avec gestion de la démarque (perte, casse, vol).
+* **Registre des Immobilisations :** Suivi des actifs, plans d'amortissement (méthode linéaire ou dégressive), génération automatique des dotations aux amortissements et injection dans le journal OD à la clôture.
+
+---
+
+### 3.5. Module 5 : Comptabilité Analytique et Centres de Profit
+* **Axes Analytiques :** Ventilation par voyage/rotation de camion, par mine cliente, par site d'exploitation.
+* **Rentabilité Multi-Critères :** Marge nette et seuil de rentabilité par centre de coût (coûts transport + douane vs prix de vente du ciment).
+
+---
+
+### 3.6. Module 6 : Logistique Sécurisée et Suivi Transfrontalier
+* **Suivi des Camions :** Statut en temps réel (En chargement, En transit Zambie, Bloqué Douane, Arrivé Sabri).
+* **Corrélation Anti-Fraude (Logistique/Compta) :** Blocage du paiement d'une facture de transport si le passage physique du camion n'a pas été géolocalisé et validé sur le terrain.
+* **Hub Douanier :** Centralisation documentaire par numéro de châssis/camion.
+
+---
+
+### 3.7. Module 7 : Ressources Humaines, Paie et Pointage
+* **Calcul de Paie & Bulletins :** Édition des bulletins de paie, gestion des acomptes, primes.
+* **Gestion des Contrats :** Suivi CDD/CDI/Sous-traitants avec alertes d'échéance.
+* **Pointage Géolocalisé :** Connexion à des terminaux de pointage ou applications mobiles.
+
+---
+
+### 3.8. Module 8 : Fiscalité et Conformité Légale (RDC)
+* **IPR :** Calcul automatique de l'Impôt Professionnel sur les Rémunérations, connecté à la paie.
+* **ARSP :** Calcul du prélèvement légal sur les contrats de sous-traitance (transporteurs).
+* **Suivi des Licences :** Registre centralisé (ex : Licence Rover) avec alertes (J-60, J-30).
+* **Homologation DGI :** Compatibilité native avec l'API du système de facturation électronique de la DGI-RDC pour le balisage TVA.
+
+---
+
+### 3.9. Module 9 : Prévision de Trésorerie et Tableaux de Bord Financiers
+* **Cash Flow Forecasting :** Modélisation prédictive de la trésorerie à 30 jours, alertes sur risque de rupture de caisse par site.
+* **Contrôle Budgétaire :** Définition de budgets par poste. Blocage ou alerte si décaissement dépasse la ligne allouée.
+* **Dashboard Financier :** Indicateurs temps réel (Marge brute/nette, liquidité, balances âgées, trésorerie nette).
+
+---
+
+### 3.10. Module 10 : Journalisation Complète des Actions (Audit Trail Utilisateur)
+Ce module est **non négociable** et doit être actif en permanence sur l'ensemble de l'application. Son objectif est de constituer une preuve légale et irréfutable de toutes les actions humaines réalisées dans le système.
+
+* **Enregistrement Automatique Systématique :** Chaque action effectuée par un utilisateur connecté doit générer automatiquement et silencieusement une ligne de journal immuable dans la base de données.
+* **Contenu de Chaque Entrée de Journal :**
+  * Identifiant de l'utilisateur (nom, prénom, rôle).
+  * Adresse IP de connexion et type de terminal (navigateur, mobile, desktop).
+  * Horodatage précis (date, heure, minute, seconde, fuseau horaire).
+  * Type d'action effectuée : `CONNEXION`, `DÉCONNEXION`, `CRÉATION`, `LECTURE`, `MODIFICATION`, `SUPPRESSION`, `VALIDATION`, `ANNULATION`, `EXPORTATION`, `IMPRESSION`.
+  * Module et objet concerné (ex : `Ecriture #ACH-2025-00042 dans Journal Achats`).
+  * **Avant/Après (Snapshot)** : Pour toute modification, le système enregistre la valeur exacte du champ avant et après la modification.
+* **Immuabilité et Intégrité :** Les entrées du journal d'audit ne peuvent jamais être modifiées, supprimées ni masquées, même par un administrateur système.
+* **Interface de Consultation :** Un écran dédié permet aux responsables et auditeurs de consulter ce journal avec des filtres puissants (par utilisateur, par module, par période, par type d'action).
+* **Alertes de Comportement Anormal :** Le système émet une alerte au superviseur en cas d'activité suspecte détectée (ex : modification de plusieurs écritures validées en dehors des heures de bureau, tentative de suppression d'une pièce justificative).
+* **Export du Journal :** Le journal d'audit complet est exportable au format PDF horodaté ou CSV pour toute investigation externe (commissaire aux comptes, DGI, autorité judiciaire).
+
+---
+
+## 4. Spécifications Techniques, Sécurité et Résilience
+* **Déploiement SaaS :** Architecture Cloud hautement sécurisée avec haute disponibilité (99.9% uptime).
+* **Mode "Offline-First" (Crucial) :** Les applications de terrain (Sabri, Frontières) fonctionnent en mode déconnecté. Saisie, scan et validation hors-ligne, synchronisation silencieuse dès le retour du réseau (3G/4G/Wi-Fi).
+* **Gestion Fine des Habilitations :** Droits granulaires selon le rôle et le site (Zambie, Frontières, Lubumbashi, Sabri). Un profil de saisie ne peut pas clôturer un exercice ni accéder au journal d'audit.
+* **Base de Données & Sauvegarde :** Base de données relationnelle hautement performante avec chiffrement des données sensibles, sauvegardes automatisées quotidiennes cryptées vers stockage externe sécurisé, et tests de restauration réguliers.
