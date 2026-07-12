@@ -36,16 +36,33 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { PLAN_COMPTABLE, CLASSES_SYSCOHADA } from '@/lib/mock-data';
+import { CLASSES_SYSCOHADA } from '@/lib/mock-data';
 import type { CompteComptable } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { fetchWithAuth } from '@/lib/api';
+import { useEffect } from 'react';
 
 type CompteNode = CompteComptable & { children?: CompteNode[]; expanded?: boolean };
 
 export default function PlanComptablePage() {
   const [search, setSearch] = useState('');
-  const [comptes, setComptes] = useState<CompteNode[]>(() => buildTree(PLAN_COMPTABLE));
+  const [comptes, setComptes] = useState<CompteNode[]>([]);
+  const [rawComptes, setRawComptes] = useState<CompteComptable[]>([]);
+  
+  const loadData = async () => {
+    try {
+      const data = await fetchWithAuth('/plan_comptable/comptes/');
+      setRawComptes(data);
+      setComptes(buildTree(data));
+    } catch (error) {
+      toast.error('Erreur lors du chargement du plan comptable');
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
   const [filterClass, setFilterClass] = useState<string>('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCompte, setEditingCompte] = useState<CompteComptable | null>(null);
@@ -131,21 +148,48 @@ export default function PlanComptablePage() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (!form.numero || !form.libelle) {
-      toast.error('Veuillez renseigner le numero et le libelle');
+  const handleSave = async () => {
+    if (!form.numero || !form.libelle || !form.parent) {
+      toast.error('Veuillez renseigner le numero, le libelle et le compte parent');
       return;
     }
-    if (editingCompte) {
-      toast.success('Compte modifie', { description: `${form.numero} - ${form.libelle}` });
-    } else {
-      toast.success('Compte cree', { description: `${form.numero} - ${form.libelle}` });
+    
+    const classe = form.numero.charAt(0);
+    const bodyData = { ...form, classe };
+
+    try {
+      if (editingCompte) {
+        await fetchWithAuth(`/plan_comptable/comptes/${editingCompte.numero}/`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData),
+        });
+        toast.success('Compte modifie', { description: `${form.numero} - ${form.libelle}` });
+      } else {
+        await fetchWithAuth('/plan_comptable/comptes/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData),
+        });
+        toast.success('Compte cree', { description: `${form.numero} - ${form.libelle}` });
+      }
+      setDialogOpen(false);
+      loadData();
+    } catch (error) {
+      toast.error('Erreur lors de la sauvegarde du compte');
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (compte: CompteComptable) => {
-    toast.success('Compte supprime', { description: compte.numero });
+  const handleDelete = async (compte: CompteComptable) => {
+    try {
+      await fetchWithAuth(`/plan_comptable/comptes/${compte.numero}/`, {
+        method: 'DELETE',
+      });
+      toast.success('Compte supprime', { description: compte.numero });
+      loadData();
+    } catch (error) {
+      toast.error('Erreur lors de la suppression du compte');
+    }
   };
 
   const renderNode = (node: CompteNode, depth: number = 0): React.ReactNode => {
@@ -238,8 +282,8 @@ export default function PlanComptablePage() {
             Exporter
           </Button>
           <Button size="sm" className="h-8 text-xs font-semibold shadow-sm bg-primary hover:bg-primary/90" onClick={openCreate}>
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Nouveau Compte
+            <Plus className="h-4 w-4" />
+            Nouveau Compte Auxiliaire
           </Button>
         </div>
       </div>
@@ -354,7 +398,7 @@ export default function PlanComptablePage() {
                   <SelectValue placeholder="Selectionner un compte parent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PLAN_COMPTABLE.filter((c) => c.type === 'general').map((c) => (
+                  {rawComptes.filter((c) => c.type === 'general').map((c) => (
                     <SelectItem key={c.numero} value={c.numero}>
                       {c.numero} - {c.libelle}
                     </SelectItem>

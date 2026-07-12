@@ -24,7 +24,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { PLAN_COMPTABLE, ECRITURES, CLASSES_SYSCOHADA } from '@/lib/mock-data';
+import { ECRITURES, CLASSES_SYSCOHADA } from '@/lib/mock-data';
+import { fetchWithAuth } from '@/lib/api';
+import { useEffect } from 'react';
 import type { CompteComptable } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -35,6 +37,13 @@ export default function RestitutionsPage() {
   const [view, setView] = useState<View>('balance');
   const [periode, setPeriode] = useState('2025-07');
   const [drillCompte, setDrillCompte] = useState<CompteComptable | null>(null);
+  const [planComptable, setPlanComptable] = useState<CompteComptable[]>([]);
+
+  useEffect(() => {
+    fetchWithAuth('/plan_comptable/comptes/')
+      .then(setPlanComptable)
+      .catch(() => toast.error('Erreur lors du chargement du plan comptable'));
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -124,18 +133,18 @@ export default function RestitutionsPage() {
         </CardContent>
       </Card>
 
-      {view === 'balance' && <BalanceView onDrillDown={setDrillCompte} />}
-      {view === 'grand-livre' && <GrandLivreView drillCompte={drillCompte} onBack={() => setDrillCompte(null)} />}
+      {view === 'balance' && <BalanceView onDrillDown={setDrillCompte} planComptable={planComptable} />}
+      {view === 'grand-livre' && <GrandLivreView drillCompte={drillCompte} onBack={() => setDrillCompte(null)} planComptable={planComptable} />}
       {view === 'journaux' && <JournauxView />}
     </div>
   );
 }
 
-function BalanceView({ onDrillDown }: { onDrillDown: (c: CompteComptable) => void }) {
+function BalanceView({ onDrillDown, planComptable }: { onDrillDown: (c: CompteComptable) => void, planComptable: CompteComptable[] }) {
   const [filterClass, setFilterClass] = useState('all');
 
   const comptes = useMemo(() => {
-    return PLAN_COMPTABLE.filter((c) => c.type === 'general' && (filterClass === 'all' || c.classe === filterClass));
+    return planComptable.filter((c) => c.type === 'general' && (filterClass === 'all' || c.classe === filterClass));
   }, [filterClass]);
 
   const totalDebit = comptes.reduce((s, c) => s + c.soldeDebit, 0);
@@ -240,10 +249,10 @@ function BalanceView({ onDrillDown }: { onDrillDown: (c: CompteComptable) => voi
   );
 }
 
-function GrandLivreView({ drillCompte, onBack }: { drillCompte: CompteComptable | null; onBack: () => void }) {
+function GrandLivreView({ drillCompte, onBack, planComptable }: { drillCompte: CompteComptable | null; onBack: () => void; planComptable: CompteComptable[] }) {
   const [selectedCompte, setSelectedCompte] = useState<string>('');
 
-  const compteActif = drillCompte || PLAN_COMPTABLE.find((c) => c.numero === selectedCompte);
+  const compteActif = drillCompte || planComptable.find((c) => c.numero === selectedCompte);
 
   const ecritures = useMemo(() => {
     if (!compteActif) return [];
@@ -278,7 +287,7 @@ function GrandLivreView({ drillCompte, onBack }: { drillCompte: CompteComptable 
                 <SelectValue placeholder="Choisir un compte..." />
               </SelectTrigger>
               <SelectContent>
-                {PLAN_COMPTABLE.filter((c) => c.soldeDebit > 0 || c.soldeCredit > 0).map((c) => (
+                {planComptable.filter((c) => c.soldeDebit > 0 || c.soldeCredit > 0).map((c) => (
                   <SelectItem key={c.numero} value={c.numero}>
                     {c.numero} - {c.libelle}
                   </SelectItem>

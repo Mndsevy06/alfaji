@@ -182,10 +182,10 @@ export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="text-destructive cursor-pointer" 
-              onClick={() => {
+              onSelect={() => {
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                router.push('/login');
+                window.location.href = '/login';
               }}
             >
               <LogOut className="h-4 w-4 mr-2" /> Deconnexion
